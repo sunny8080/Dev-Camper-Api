@@ -5,7 +5,7 @@ const { getBootCamps, getBootCamp, createBootcamp, updateBootcamp, deleteBootcam
 router.route("/")
   .get(getBootCamps)
   .post(createBootcamp);
-  
+
 router.route("/:id")
   .get(getBootCamp)
   .put(createBootcamp)
