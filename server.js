@@ -11,6 +11,9 @@ const app = express();
 // connect to database
 connectDB();
 
+// body parser
+app.use(express.json());
+
 
 
 // Route files
@@ -28,5 +31,5 @@ app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on 
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error : ${err.message}`.red);
   // close server & exit process
-  server.close(()=>process.exit(1));
+  // server.close(()=>process.exit(1));
 })

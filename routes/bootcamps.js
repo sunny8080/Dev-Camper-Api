@@ -8,7 +8,7 @@ router.route("/")
 
 router.route("/:id")
   .get(getBootCamp)
-  .put(createBootcamp)
+  .put(updateBootcamp)
   .delete(deleteBootcamp);
 
 module.exports = router;
