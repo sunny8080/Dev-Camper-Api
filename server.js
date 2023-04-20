@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const connectDB = require('./config/db')
 const colors = require('colors');
 const PORT = process.env.PORT || 5000;
+const errorHandler = require("./middleware/error");
 
 // load env vars
 dotenv.config({ path: "./config/config.env" });
@@ -23,6 +24,8 @@ const bootcamps = require("./routes/bootcamps");
 app.use("/api/v1/bootcamps", bootcamps);
 
 
+// error handler
+app.use(errorHandler)
 
 // app.listen(PORT, ()=>console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold));
