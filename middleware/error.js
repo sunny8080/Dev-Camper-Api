@@ -8,7 +8,7 @@ const errorHandler = (err, req, res, next) => {
 
 
   // log for dev
-  console.log(err);
+  // console.log(err);
   // console.log(err.name.red);
   // console.log(err.code);
 
