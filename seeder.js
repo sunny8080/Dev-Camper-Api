@@ -30,6 +30,7 @@ const importData = async () => {
 
 
 // delete from db
+// WARNING : all data will be deleted from Bootcamp db
 const deleteData = async () => {
   try {
     await Bootcamp.deleteMany();
