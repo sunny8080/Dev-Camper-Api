@@ -34,12 +34,14 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
   if (req.query.sort) {
     const sortBy = req.query.select.split(', ').join(' ');
     query = query.sort(sortBy);
+  }else{
+    query = query.sortBy('-createdAt')
   }
 
   // pagination 
   // 0-based indexing // includes [startIndex, endIndex)
   const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 2;
+  const limit = parseInt(req.query.limit, 10) || 25;
   const total = await Bootcamp.countDocuments();
   const startIndex = (page - 1) * limit;
   const endIndex = Math.min(page * limit, total);
@@ -140,7 +142,7 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 
 
 
-// @desc      Get bootcamps within radius ( distance must be in miles )
+// @desc      Get bootcamps within radius ( distance must be in km )
 // @route     GET /api/v1/bootcamps/radius/:zipcode/:distance
 // @access    Private
 exports.getBootcampInRadius = asyncHandler(async (req, res, next) => {
@@ -154,7 +156,7 @@ exports.getBootcampInRadius = asyncHandler(async (req, res, next) => {
   // cal radius in radians
   // radians = distance_in_mile / earth_radius_in_mile
   // Earth radius : 3963 mi or 6378 km
-  const radius = distance / 3963
+  const radius = distance / 6378
 
   const bootcamps = await Bootcamp.find({
     location: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
