@@ -4,17 +4,74 @@ const asyncHandler = require('../middleware/async');
 const geocoder = require('../utils/geocoder');
 
 
+
 // @desc      get all bootcamps
 // @route     GET /api/v1/bootcamps
 // @access    Public
 exports.getBootCamps = asyncHandler(async (req, res, next) => {
-  let queryStr = JSON.stringify(req.query).replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
-  let query = Bootcamp.find(JSON.parse(queryStr));
+  let query;
+  const reqQuery = { ...req.query };
+
+  // Fields to exclude
+  const removeField = ['select', 'sort', 'page', 'limit'];
+
+  // loop over query and delete from query
+  removeField.forEach(param => delete reqQuery[param]);
+
+  // create query String and create operators ($gt, $lte, $in)
+  let queryStr = JSON.stringify(reqQuery).replace(/\b(gt|gte|lt|lte|in|eq)\b/g, match => `$${match}`);
+
+  // Finding resources #IDK
+  query = Bootcamp.find(JSON.parse(queryStr));
+
+  // select fields
+  if (req.query.select) {
+    const fields = req.query.select.split(', ').join(' ');
+    query = query.select(fields);
+  }
+
+  // sort the query 
+  if (req.query.sort) {
+    const sortBy = req.query.select.split(', ').join(' ');
+    query = query.sort(sortBy);
+  }
+
+  // pagination 
+  // 0-based indexing // includes [startIndex, endIndex)
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 2;
+  const total = await Bootcamp.countDocuments();
+  const startIndex = (page - 1) * limit;
+  const endIndex = Math.min(page * limit, total);
+  query = query.skip(startIndex).limit(limit);
+
+  // Executing query
   const bootcamps = await query;
-  res.status(200).json({ success: true, count: bootcamps.length, data: bootcamps })
+
+  // pagination result
+  const pagination = {
+    totalPage: Math.ceil(total / limit),
+    pageNo: page,
+    limit
+  };
+
+  if (endIndex < total) {
+    pagination.next = { page: page + 1 }
+  }
+
+  if (startIndex > 0) {
+    pagination.prev = { page: page - 1 }
+  }
+
+  res.status(200).json({
+    success: true,
+    count: bootcamps.length,
+    pagination,
+    data: bootcamps
+  })
 });
 
-// OLD
+// #OLD
 // exports.getBootCamps =  async (req, res, next) => {
 //   try {
 //     const bootcamps = await Bootcamp.find();
