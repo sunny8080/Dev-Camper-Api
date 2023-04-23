@@ -11,6 +11,12 @@ router.route("/:id")
   .put(updateBootcamp)
   .delete(deleteBootcamp);
 
-router.route('/radius/:zipcode/:distance').get(getBootcampInRadius)
+router.route('/radius/:zipcode/:distance').get(getBootcampInRadius);
+
+// include other resource routers
+const courseRouter = require('./courses');
+
+// re-route into other resource courses
+router.use('/:bootcampId/courses', courseRouter)
 
 module.exports = router;

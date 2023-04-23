@@ -20,7 +20,7 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
       select: 'name description'
     });
   }
-
+  
   const courses = await query;
 
   res.status(200).json({

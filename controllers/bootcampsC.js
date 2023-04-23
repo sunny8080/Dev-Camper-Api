@@ -35,7 +35,7 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
     const sortBy = req.query.select.split(', ').join(' ');
     query = query.sort(sortBy);
   }else{
-    query = query.sortBy('-createdAt')
+    query = query.sort('-createdAt')
   }
 
   // pagination 
