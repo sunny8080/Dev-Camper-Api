@@ -141,7 +141,7 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Bootcamp not found with id ${req.params.id}`), 404);
   }
 
-  bootcamp.deleteOne();
+  await bootcamp.deleteOne();
   res.status(200).json({ success: true, data: bootcamp })
 });
 
