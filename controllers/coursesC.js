@@ -83,10 +83,22 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`No bootcamp with the id of ${req.params.id}`, 404));
   }
 
+  const preBootCampId = course.bootcamp;
+
   course = await Course.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true
   });
+
+  // update average cost of bootcamp, if update contains tuition cost
+  if (req.body.tuition) Course.getAverageCost(course.bootcamp);
+
+  // update average cost of new and old bootcamp, if update contains bootcamp
+  if (req.body.bootcamp) {
+    Course.getAverageCost(course.bootcamp);
+    Course.getAverageCost(preBootCampId);
+  }
+
 
   res.status(200).json({
     success: true,
