@@ -4,6 +4,8 @@ const connectDB = require('./config/db')
 const colors = require('colors');
 const PORT = process.env.PORT || 5000;
 const errorHandler = require("./middleware/error");
+const path = require('path');
+const fileupload = require('express-fileupload');
 
 // load env vars
 dotenv.config({ path: "./config/config.env" });
@@ -14,6 +16,12 @@ connectDB();
 
 // body parser
 app.use(express.json());
+
+// file uploading
+app.use(fileupload());
+
+// set static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // Route files
