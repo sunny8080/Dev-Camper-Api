@@ -9,72 +9,7 @@ const path = require('path');
 // @route     GET /api/v1/bootcamps
 // @access    Public
 exports.getBootCamps = asyncHandler(async (req, res, next) => {
-  let query;
-  const reqQuery = { ...req.query };
-
-  // Fields to exclude
-  const removeField = ['select', 'sort', 'page', 'limit'];
-
-  // loop over query and delete from query
-  removeField.forEach(param => delete reqQuery[param]);
-
-  // create query String and create operators ($gt, $lte, $in)
-  let queryStr = JSON.stringify(reqQuery).replace(/\b(gt|gte|lt|lte|in|eq)\b/g, match => `$${match}`);
-
-  // Finding resources #IDK
-  query = Bootcamp.find(JSON.parse(queryStr)).populate('courses');
-
-  // select fields
-  if (req.query.select) {
-    const fields = req.query.select.split(', ').join(' ');
-    query = query.select(fields);
-  }
-
-  // sort the query 
-  if (req.query.sort) {
-    const sortBy = req.query.select.split(', ').join(' ');
-    query = query.sort(sortBy);
-  } else {
-    query = query.sort('-createdAt')
-  }
-
-  // pagination 
-  // 0-based indexing // includes [startIndex, endIndex)
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 25;
-  const total = await Bootcamp.countDocuments();
-  const startIndex = (page - 1) * limit;
-  const endIndex = Math.min(page * limit, total);
-  query = query.skip(startIndex).limit(limit);
-
-  // Executing query
-  const bootcamps = await query;
-
-  // console.log(bootcamps[0]);
-  // console.log(bootcamps[0].toJSON());
-  // console.log(JSON.stringify(bootcamps[0]));
-
-  // pagination result
-  const pagination = {
-    totalPage: Math.ceil(total / limit),
-    pageNo: page,
-    limit
-  };
-
-  if (endIndex < total) {
-    pagination.next = { page: page + 1 }
-  }
-
-  if (startIndex > 0) {
-    pagination.prev = { page: page - 1 }
-  }
-
-  res.status(200).json({
-    success: true,
-    count: bootcamps.length,
-    pagination,
-    data: bootcamps
-  })
+  res.status(200).json(res.advancedResults);
 });
 
 // #OLD
@@ -94,7 +29,7 @@ exports.getBootCamps = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/bootcamps/:id
 // @access    Public
 exports.getBootCamp = asyncHandler(async (req, res, next) => {
-  const bootcamp = await Bootcamp.findById(req.params.id);
+  const bootcamp = await Bootcamp.findById(req.params.id).populate('courses');
 
   if (!bootcamp) {
     return next(new ErrorResponse(`Bootcamp not found with id ${req.params.id}`), 404);

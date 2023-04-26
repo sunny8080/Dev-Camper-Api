@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { getBootCamps, getBootCamp, createBootcamp, updateBootcamp, deleteBootcamp, getBootcampInRadius, bootcampPhotoUpload } = require("../controllers/bootcampsC");
+const Bootcamp = require('../models/Bootcamp')
+const advancedResults = require('../middleware/advancedResults')
 
 router.route("/")
-  .get(getBootCamps)
+  .get(advancedResults(Bootcamp, 'courses'), getBootCamps)
   .post(createBootcamp);
 
 router.route("/:id")
