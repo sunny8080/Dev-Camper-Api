@@ -27,10 +27,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Route files
 const bootcamps = require("./routes/bootcamps");
 const courses = require("./routes/courses");
+const auth = require("./routes/auth");
 
 // mount bootcamps routers
 app.use("/api/v1/bootcamps", bootcamps);
 app.use("/api/v1/courses", courses);
+app.use("/api/v1/auth", auth);
 
 
 // error handler
