@@ -5,6 +5,7 @@ const colors = require('colors');
 const PORT = process.env.PORT || 5000;
 const errorHandler = require("./middleware/error");
 const path = require('path');
+const cookieParser = require('cookie-parser');
 const fileupload = require('express-fileupload');
 
 // load env vars
@@ -16,6 +17,9 @@ connectDB();
 
 // body parser
 app.use(express.json());
+
+// cookie parser
+app.use(cookieParser());
 
 // file uploading
 app.use(fileupload());
