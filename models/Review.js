@@ -70,6 +70,7 @@ ReviewSchema.post("save", function () {
 // call getAverageRating before delete
 ReviewSchema.pre("deleteOne", { document: true, query: false }, function (next) {
   this.constructor.getAverageRating(this.bootcamp);
+  next();
 });
 
 module.exports = mongoose.model("Review", ReviewSchema);
