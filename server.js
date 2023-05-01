@@ -79,7 +79,11 @@ app.use("/api/v1/reviews", reviews);
 app.use(errorHandler);
 
 // app.listen(PORT, ()=>console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
-app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold));
+app.listen(PORT, () => {
+  if (process.env.NODE_ENV === "development") {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold);
+  }
+});
 
 // handle unhandled promise rejection
 process.on("unhandledRejection", (err, promise) => {
