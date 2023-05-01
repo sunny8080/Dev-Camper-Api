@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5000;
 const errorHandler = require("./middleware/error");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const mongoSanitize = require("express-mongo-sanitize");
 const fileupload = require("express-fileupload");
 const morgan = require("morgan");
 
@@ -29,6 +30,9 @@ app.use(cookieParser());
 
 // file uploading
 app.use(fileupload());
+
+// sanitize data
+app.use(mongoSanitize());
 
 // set static folder
 app.use(express.static(path.join(__dirname, "public")));
