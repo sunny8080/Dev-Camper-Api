@@ -5,15 +5,15 @@ const advancedResults = (model, populate) => async (req, res, next) => {
   const reqQuery = { ...req.query };
 
   // Fields to exclude
-  const removeField = ['select', 'sort', 'page', 'limit'];
+  const removeField = ["select", "sort", "page", "limit"];
 
   // loop over query and delete from query
-  removeField.forEach(param => delete reqQuery[param]);
+  removeField.forEach((param) => delete reqQuery[param]);
 
   // create query String and create operators ($gt, $lte, $in)
-  let queryStr = JSON.stringify(reqQuery).replace(/\b(gt|gte|lt|lte|in|eq)\b/g, match => `$${match}`);
+  let queryStr = JSON.stringify(reqQuery).replace(/\b(gt|gte|lt|lte|in|eq)\b/g, (match) => `$${match}`);
 
-  // Finding resources 
+  // Finding resources
   query = model.find(JSON.parse(queryStr));
 
   // populate
@@ -23,20 +23,20 @@ const advancedResults = (model, populate) => async (req, res, next) => {
 
   // select fields
   if (req.query.select) {
-    const fields = req.query.select.split(',').join(' ');
+    const fields = req.query.select.split(",").join(" ");
     // console.log(fields);
     query = query.select(fields);
   }
 
-  // sort the query 
+  // sort the query
   if (req.query.sort) {
-    const sortBy = req.query.select.split(',').join(' ');
+    const sortBy = req.query.select.split(",").join(" ");
     query = query.sort(sortBy);
   } else {
-    query = query.sort('-createdAt')
+    query = query.sort("-createdAt");
   }
 
-  // pagination 
+  // pagination
   // 0-based indexing // includes [startIndex, endIndex)
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 25;
@@ -56,26 +56,25 @@ const advancedResults = (model, populate) => async (req, res, next) => {
   const pagination = {
     totalPage: Math.ceil(total / limit),
     pageNo: page,
-    limit
+    limit,
   };
 
   if (endIndex < total) {
-    pagination.next = { page: page + 1 }
+    pagination.next = { page: page + 1 };
   }
 
   if (startIndex > 0) {
-    pagination.prev = { page: page - 1 }
+    pagination.prev = { page: page - 1 };
   }
 
   res.advancedResults = {
     success: true,
     count: results.length,
     pagination,
-    data: results
-  }
+    data: results,
+  };
 
   next();
-}
-
+};
 
 module.exports = advancedResults;

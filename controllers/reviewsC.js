@@ -1,8 +1,7 @@
-const asyncHandler = require('../middleware/async');
-const ErrorResponse = require('../utils/ErrorResponse');
-const Bootcamp = require('../models/Bootcamp')
-const Review = require('../models/Review')
-
+const asyncHandler = require("../middleware/async");
+const ErrorResponse = require("../utils/ErrorResponse");
+const Bootcamp = require("../models/Bootcamp");
+const Review = require("../models/Review");
 
 // @desc      Get all reviews
 // @route     GET /api/v1/reviews
@@ -15,20 +14,19 @@ exports.getReviews = asyncHandler(async (req, res, next) => {
     return res.status(200).json({
       success: true,
       count: reviews.length,
-      data: reviews
-    })
+      data: reviews,
+    });
   }
   return res.status(200).json(res.advancedResults);
 });
-
 
 // @desc      Get single review
 // @route     GET /api/v1/reviews/:id
 // @access    Public
 exports.getReview = asyncHandler(async (req, res, next) => {
   const review = await Review.findById(req.params.id).populate({
-    path: 'bootcamp',
-    select: 'name description'
+    path: "bootcamp",
+    select: "name description",
   });
 
   if (!review) {
@@ -37,10 +35,9 @@ exports.getReview = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: review
-  })
+    data: review,
+  });
 });
-
 
 // @desc      Add review
 // @route     POST /api/v1/bootcamp/:bootcampId/reviews
@@ -59,31 +56,30 @@ exports.addReview = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: review
-  })
+    data: review,
+  });
 });
-
 
 // @desc      Update review
 // @route     PUT /api/v1/reviews/:id
 // @access    Private
 exports.updateReview = asyncHandler(async (req, res, next) => {
-  // TODO - try to do same thing with findOneAndUpdate query middleware 
+  // TODO - try to do same thing with findOneAndUpdate query middleware
   let review = await Review.findById(req.params.id);
   if (!review) {
     return next(new ErrorResponse(`No review found with the id of ${req.params.id}`, 404));
   }
 
   // Make sure user is bootcamp owner or user is admin
-  if (review.user.toString() !== req.user.id && req.user.role !== 'admin') {
-    return next(new ErrorResponse(`User ${req.user.id} is not authorized to update this review`, 401))
+  if (review.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to update this review`, 401));
   }
 
   const preBootCampId = review.bootcamp;
 
   review = await Review.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
-    runValidators: true
+    runValidators: true,
   });
 
   // update average rating of bootcamp, if update contains rating
@@ -97,11 +93,9 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: review
-  })
+    data: review,
+  });
 });
-
-
 
 // @desc      Delete review
 // @route     DELETE /api/v1/reviews/:id
@@ -114,17 +108,14 @@ exports.deleteReview = asyncHandler(async (req, res, next) => {
   }
 
   // Make sure review belongs to current user or user is admin
-  if (review.user.toString() !== req.user.id && req.user.role !== 'admin') {
-    return next(new ErrorResponse(`User ${req.params.id} is not authorized to delete this review from bootcamp`, 401))
+  if (review.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(new ErrorResponse(`User ${req.params.id} is not authorized to delete this review from bootcamp`, 401));
   }
 
   await review.deleteOne();
 
   res.status(200).json({
     success: true,
-    data: review
+    data: review,
   });
 });
-
-
-

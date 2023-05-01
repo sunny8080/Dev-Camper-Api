@@ -1,13 +1,13 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const connectDB = require('./config/db')
-const colors = require('colors');
+const connectDB = require("./config/db");
+const colors = require("colors");
 const PORT = process.env.PORT || 5000;
 const errorHandler = require("./middleware/error");
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const fileupload = require('express-fileupload');
-const morgan = require('morgan')
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const fileupload = require("express-fileupload");
+const morgan = require("morgan");
 
 // load env vars
 dotenv.config({ path: "./config/config.env" });
@@ -17,8 +17,8 @@ const app = express();
 connectDB();
 
 // Dev logging middleware
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
 }
 
 // body parser
@@ -31,8 +31,7 @@ app.use(cookieParser());
 app.use(fileupload());
 
 // set static folder
-app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(express.static(path.join(__dirname, "public")));
 
 // Route files
 const bootcamps = require("./routes/bootcamps");
@@ -48,16 +47,15 @@ app.use("/api/v1/auth", auth);
 app.use("/api/v1/users", users);
 app.use("/api/v1/reviews", reviews);
 
-
 // error handler
-app.use(errorHandler)
+app.use(errorHandler);
 
 // app.listen(PORT, ()=>console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold));
 
 // handle unhandled promise rejection
-process.on('unhandledRejection', (err, promise) => {
+process.on("unhandledRejection", (err, promise) => {
   console.log(`Error : ${err.message}`.red);
   // close server & exit process
   // server.close(()=>process.exit(1));
-})
+});
