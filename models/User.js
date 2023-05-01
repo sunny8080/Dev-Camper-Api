@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const gravatar = require("gravatar");
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -25,6 +26,9 @@ const UserSchema = new mongoose.Schema({
     minLength: 6,
     select: false,
   },
+  avatar: {
+    type: String,
+  },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   createdAt: {
@@ -33,8 +37,14 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-// encrypt password using bcrypt
+// Add a avatar image to user and Encrypt password using bcrypt
 UserSchema.pre("save", async function (next) {
+  this.avatar = gravatar.url(this.email, {
+    s: "200",
+    r: "pg",
+    d: "mm",
+  });
+
   if (!this.isModified("password")) {
     next();
   }
