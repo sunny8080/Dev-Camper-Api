@@ -10,13 +10,58 @@ const crypto = require("crypto");
 exports.register = asyncHandler(async (req, res, next) => {
   const { name, email, role, password } = req.body;
 
-  // create user
+  // Create user
   const user = await User.create({
     name,
     email,
     role,
     password,
   });
+
+  sendEmailConfirmation(user, req, res, next);
+});
+
+// @desc      Resend Email Confirmation
+// @route     PUT /api/v1/auth/resendemailconfirm
+// @access    Public
+exports.resendEmailConfirm = asyncHandler(async (req, res, next) => {
+  if (!req.query.email) {
+    return next(new ErrorResponse("Please provide a email", 404));
+  }
+  const user = await User.findOne({ email: req.query.email });
+  sendEmailConfirmation(user, req, res, next);
+});
+
+// @desc      Confirm email
+// @route     GET /api/v1/auth/confirmemail/:confirmtoken
+// @access    Public
+exports.confirmEmail = asyncHandler(async (req, res, next) => {
+  const { confirmtoken } = req.params;
+
+  if (!confirmtoken || confirmtoken.split(".").length != 2) {
+    return next(new ErrorResponse("Invalid Token", 400));
+  }
+
+  const confirmationToken = confirmtoken.split(".")[0];
+
+  const confirmEmailToken = crypto.createHash("sha256").update(confirmationToken).digest("hex");
+
+  const user = await User.findOne({
+    confirmEmailToken,
+    confirmEmailExpire: { $gt: Date.now() },
+    isEmailConfirmed: false,
+  });
+
+  if (!user) {
+    return next(new ErrorResponse("Invalid Token", 400));
+  }
+
+  // Update confirmation
+  user.confirmEmailToken = undefined;
+  user.confirmEmailExpire = undefined;
+  user.isEmailConfirmed = true;
+
+  await user.save();
 
   sendTokenResponse(user, 200, res);
 });
@@ -45,6 +90,11 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   if (!isMatch) {
     return next(new ErrorResponse("Invalid credentials", 400));
+  }
+
+  // Check user is verified or not
+  if (!user.isEmailConfirmed) {
+    return next(new ErrorResponse("Email is not verified. Verify your email first.", 401));
   }
 
   sendTokenResponse(user, 200, res);
@@ -196,4 +246,38 @@ const sendTokenResponse = (user, statusCode, res) => {
     success: true,
     token,
   });
+};
+
+// Get token from model, and send email confirmation email to user email
+const sendEmailConfirmation = async (user, req, res, next) => {
+  // Check if used is already verified or not
+  if (user.isEmailConfirmed) {
+    return next(new ErrorResponse(`User ${user.id} is already verified.`, 400));
+  }
+
+  // Get token
+  const confirmEmailToken = user.generateEmailConfirmToken();
+
+  // Create confirm email url and send to email
+  const confirmEmailUrl = `${req.protocol}://${req.get("host")}/api/v1/auth/confirmemail/${confirmEmailToken}`;
+
+  const message = `We are happy to have you onboard. Please click below to confirm your email : \n\n ${confirmEmailUrl} \n\n Thank You to join us ! \n\n Happy journey!`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Email Confirmation",
+      message,
+    });
+  } catch (err) {
+    user.confirmEmailToken = undefined;
+    user.confirmEmailExpire = undefined;
+
+    user.save({ validateBeforeSave: false });
+    return next(new ErrorResponse("Email Confirmation could not be sent", 500));
+  }
+
+  user.save({ validateBeforeSave: false });
+
+  sendTokenResponse(user, 200, res);
 };

@@ -31,6 +31,12 @@ const UserSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+  confirmEmailToken: String,
+  confirmEmailExpire: Date,
+  isEmailConfirmed: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -78,6 +84,20 @@ UserSchema.methods.getResetPasswordToken = function () {
   this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
+};
+
+UserSchema.methods.generateEmailConfirmToken = function () {
+  // email confirmation token
+  const confirmationToken = crypto.randomBytes(20).toString("hex");
+
+  // Hash token and set to resetPasswordToken field
+  this.confirmEmailToken = crypto.createHash("sha256").update(confirmationToken).digest("hex");
+  this.confirmEmailExpire = Date.now() + 10 * 60 * 1000;
+
+  const confirmTokenExtend = crypto.randomBytes(100).toString("hex");
+  const confirmTokenCombined = `${confirmationToken}.${confirmTokenExtend}`;
+
+  return confirmTokenCombined;
 };
 
 module.exports = mongoose.model("User", UserSchema);
