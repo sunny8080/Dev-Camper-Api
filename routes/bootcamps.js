@@ -21,8 +21,10 @@ router.route('/:id/photo').put(protect, authorize('publisher', 'admin'), bootcam
 
 // include other resource routers
 const courseRouter = require('./courses');
+const reviewsRouter = require('./reviews');
 
 // re-route into other resource courses
 router.use('/:bootcampId/courses', courseRouter)
+router.use('/:bootcampId/reviews', reviewsRouter)
 
 module.exports = router;

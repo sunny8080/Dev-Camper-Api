@@ -75,12 +75,13 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/courses/:id
 // @access    Private
 exports.updateCourse = asyncHandler(async (req, res, next) => {
+  // TODO - try to do same thing with findOneAndUpdate query middleware 
   let course = await Course.findById(req.params.id);
   if (!course) {
     return next(new ErrorResponse(`No course with the id of ${req.params.id}`, 404));
   }
 
-  // Make sure user is bootcamp owner
+  // Make sure user is bootcamp owner or user is admin
   if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
     return next(new ErrorResponse(`User ${req.user.id} is not authorized to add a course to bootcamp ${course._id}`, 401))
   }
@@ -122,7 +123,7 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
 
   // Make sure user is bootcamp owner
   if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
-    return next(new ErrorResponse(`User ${req.user.id} is not authorized to add a course to bootcamp ${course._id}`, 401))
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete this course from bootcamp ${course._id}`, 401))
   }
 
   await course.deleteOne();
