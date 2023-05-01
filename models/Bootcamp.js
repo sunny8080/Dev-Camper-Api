@@ -135,6 +135,9 @@ BootcampSchema.pre("deleteOne", { document: true, query: false }, async function
   // console.log(this instanceof mongoose.Query); // false
   // console.log(`Courses being removed from bootcamp : ${this._id}`);
   await this.model("Course").deleteMany({ bootcamp: this._id });
+  
+  // console.log(`Reviews being removed from bootcamp : ${this._id}`);
+  await this.model("Review").deleteMany({ bootcamp: this._id });
   next();
 });
 

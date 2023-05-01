@@ -67,7 +67,6 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/courses/:id
 // @access    Private
 exports.updateCourse = asyncHandler(async (req, res, next) => {
-  // TODO - try to do same thing with findOneAndUpdate query middleware
   let course = await Course.findById(req.params.id);
   if (!course) {
     return next(new ErrorResponse(`No course with the id of ${req.params.id}`, 404));
@@ -85,13 +84,11 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
     runValidators: true,
   });
 
-  // update average cost of bootcamp, if update contains tuition cost
-  if (req.body.tuition) Course.getAverageCost(course.bootcamp);
+  await course.save();
 
-  // update average cost of new and old bootcamp, if update contains bootcamp
+  // update average cost of old bootcamp, if update contains bootcamp
   if (req.body.bootcamp) {
-    Course.getAverageCost(course.bootcamp);
-    Course.getAverageCost(preBootCampId);
+    await Course.getAverageCost(preBootCampId);
   }
 
   res.status(200).json({

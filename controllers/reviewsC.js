@@ -64,7 +64,6 @@ exports.addReview = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/reviews/:id
 // @access    Private
 exports.updateReview = asyncHandler(async (req, res, next) => {
-  // TODO - try to do same thing with findOneAndUpdate query middleware
   let review = await Review.findById(req.params.id);
   if (!review) {
     return next(new ErrorResponse(`No review found with the id of ${req.params.id}`, 404));
@@ -82,13 +81,11 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
     runValidators: true,
   });
 
-  // update average rating of bootcamp, if update contains rating
-  if (req.body.rating) Review.getAverageRating(review.bootcamp);
+  await review.save();
 
-  // update average rating of new and old bootcamp, if update contains bootcamp
+  // update average rating of old bootcamp, if update contains bootcamp
   if (req.body.bootcamp) {
-    Review.getAverageRating(review.bootcamp);
-    Review.getAverageRating(preBootCampId);
+    await Review.getAverageRating(preBootCampId);
   }
 
   res.status(200).json({

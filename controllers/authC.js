@@ -52,7 +52,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 // @desc      Log user out / clear cookie
 // @route     GET /api/v1/auth/logout
-// @access    Private
+// @access    Public
 exports.logout = asyncHandler(async (req, res, next) => {
   res
     .cookie("token", "none", {
@@ -70,7 +70,8 @@ exports.logout = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/auth/me
 // @access    Private
 exports.getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  // user is already available in req due to the protect middleware
+  const user = req.user;
   res.status(200).json({
     success: true,
     data: user,

@@ -59,7 +59,7 @@ CourseSchema.statics.getAverageCost = async function (bootcampId) {
 
   try {
     await this.model("Bootcamp").findByIdAndUpdate(bootcampId, {
-      averageCost: obj.length ? Math.ceil(obj[0].averageCost / 10) * 10 : 0,
+      averageCost: obj.length ? Math.ceil(obj[0].averageCost / 10) * 10 : undefined,
     });
   } catch (err) {
     console.log(err);
@@ -67,14 +67,13 @@ CourseSchema.statics.getAverageCost = async function (bootcampId) {
 };
 
 // call getAverageCost after save
-CourseSchema.post("save", function () {
-  this.constructor.getAverageCost(this.bootcamp);
+CourseSchema.post("save", async function () {
+  await this.constructor.getAverageCost(this.bootcamp);
 });
 
-// call getAverageCost before delete
-CourseSchema.pre("deleteOne", { document: true, query: false }, function (next) {
-  this.constructor.getAverageCost(this.bootcamp);
-  next();
+// call getAverageCost after delete
+CourseSchema.post("deleteOne", { document: true, query: false }, async function (next) {
+  await this.constructor.getAverageCost(this.bootcamp);
 });
 
 module.exports = mongoose.model("Course", CourseSchema);

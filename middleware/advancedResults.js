@@ -40,7 +40,7 @@ const advancedResults = (model, populate) => async (req, res, next) => {
   // 0-based indexing // includes [startIndex, endIndex)
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 25;
-  const total = await model.countDocuments();
+  const total = await model.countDocuments(JSON.parse(queryStr));
   const startIndex = (page - 1) * limit;
   const endIndex = Math.min(page * limit, total);
   query = query.skip(startIndex).limit(limit);
