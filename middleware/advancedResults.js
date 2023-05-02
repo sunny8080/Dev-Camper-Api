@@ -1,3 +1,5 @@
+const ErrorResponse = require("../utils/ErrorResponse");
+
 const advancedResults = (model, populate) => async (req, res, next) => {
   let query;
 
@@ -40,13 +42,23 @@ const advancedResults = (model, populate) => async (req, res, next) => {
   // 0-based indexing // includes [startIndex, endIndex)
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 25;
-  const total = await model.countDocuments(JSON.parse(queryStr));
+  let total;
+  try {
+    total = await model.countDocuments(JSON.parse(queryStr));
+  } catch (err) {
+    return next(new ErrorResponse("Something Wrong happened", 404));
+  }
   const startIndex = (page - 1) * limit;
   const endIndex = Math.min(page * limit, total);
   query = query.skip(startIndex).limit(limit);
 
   // Executing query
-  const results = await query;
+  let results;
+  try {
+    results = await query;
+  } catch (err) {
+    return next(new ErrorResponse("Something wrong happened", 404));
+  }
 
   // console.log(results[0]);
   // console.log(results[0].toJSON());
