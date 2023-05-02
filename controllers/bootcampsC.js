@@ -3,6 +3,7 @@ const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middleware/async");
 const geocoder = require("../utils/geocoder");
 const path = require("path");
+const slugify = require("slugify");
 
 // @desc      get all bootcamps
 // @route     GET /api/v1/bootcamps
@@ -66,6 +67,11 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
   // Make sure user is bootcamp owner
   if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(new ErrorResponse(`User ${req.user.id} is not authorized to update this bootcamp`, 401));
+  }
+
+  // Update slug while updating name
+  if (req.body.name) {
+    req.body.slug = slugify(req.body.name, { lower: true });
   }
 
   bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
