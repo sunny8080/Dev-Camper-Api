@@ -6,13 +6,23 @@ const advancedResults = require("../middleware/advancedResults");
 
 const { protect, authorize } = require("../middleware/auth");
 
-router.route("/").get(advancedResults(Bootcamp, "courses"), getBootCamps).post(protect, authorize("publisher", "admin"), createBootcamp);
+router.route("/")
+  .get(advancedResults(Bootcamp, "courses"), getBootCamps)
+  .post(protect, authorize("publisher", "admin"), createBootcamp);
 
-router.route("/:id").get(getBootCamp).put(protect, authorize("publisher", "admin"), updateBootcamp).delete(protect, authorize("publisher", "admin"), deleteBootcamp);
+router
+  .route("/:id")
+  .get(getBootCamp)
+  .put(protect, authorize("publisher", "admin"), updateBootcamp)
+  .delete(protect, authorize("publisher", "admin"), deleteBootcamp);
 
-router.route("/radius/:zipcode/:distance").get(getBootcampInRadius);
+router
+  .route("/radius/:zipcode/:distance")
+  .get(getBootcampInRadius);
 
-router.route("/:id/photo").put(protect, authorize("publisher", "admin"), bootcampPhotoUpload);
+router
+  .route("/:id/photo")
+  .put(protect, authorize("publisher", "admin"), bootcampPhotoUpload);
 
 // include other resource routers
 const courseRouter = require("./courses");
