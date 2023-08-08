@@ -75,7 +75,7 @@ app.use("/api/v1/auth", auth);
 app.use("/api/v1/users", users);
 app.use("/api/v1/reviews", reviews);
 
-// error handler
+// error handler // must be after mounting the routes
 app.use(errorHandler);
 
 // app.listen(PORT, ()=>console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
